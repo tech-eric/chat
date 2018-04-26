@@ -5,11 +5,13 @@
 #include  <netinet/in.h>
 #include  <stdio.h>
 #include  <stdlib.h>
+#include  <unistd.h>
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
+    char buf[1000] = {"Hello Server"};
     // Create socket
     int socket_d = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -30,6 +32,7 @@ int main(int argc, char **argv)
         cout <<"connet faild" << endl;
     }else{
         cout << "Connect succefully" << endl;
+        send(socket_d, buf, strlen(buf), 0);
     }
 
     cout << "Exit"<< endl;

@@ -5,11 +5,15 @@
 #include  <netinet/in.h>
 #include  <stdio.h>
 #include  <stdlib.h>
+#include  <unistd.h>
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
+    char buf[1000];
+    int n = 0;
+
     // Create socket
     int socket_d = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -45,8 +49,13 @@ int main(int argc, char **argv)
         cout << "Accept client fail" <<endl;
     }else{
         cout << "Accepted a client succefully" << endl;
+        n = recv(connet_d, buf, 1000, 0);
+        buf[n] = '\0';
+        cout << "Receive msg:" << buf << endl;
     }
 
+    close(connet_d);
+    close(socket_d);
     cout << "Exit"<< endl;
 
     return 0;
