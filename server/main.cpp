@@ -6,14 +6,12 @@
 #include  <stdio.h>
 #include  <stdlib.h>
 #include  <unistd.h>
+#include  <signal.h>
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-    char buf[1000];
-    int n = 0;
-
     // Create socket
     int socket_d = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -44,17 +42,42 @@ int main(int argc, char **argv)
     struct sockaddr_storage client_addr;
     unsigned int address_size = sizeof(client_addr);
 
-    int connet_d = accept(socket_d, (struct sockaddr *)&client_addr, &address_size);
-    if(connet_d == -1){
-        cout << "Accept client fail" <<endl;
-    }else{
-        cout << "Accepted a client succefully" << endl;
-        n = recv(connet_d, buf, 1000, 0);
-        buf[n] = '\0';
-        cout << "Receive msg:" << buf << endl;
+    int conn;
+    int thread_cnt = 0;
+
+    cout << "Wating for conneting"<< endl;
+
+    signal(SIGCLD, SIG_IGN);
+
+    while(1){
+
+        /* Wating for client conneting */
+        conn = accept(socket_d, (struct sockaddr *)&client_addr, &address_size);
+        thread_cnt++;
+
+        /* Fork a new thread to receive msg */
+        if(fork() == 0){
+            char *msg = new char[100];
+            int cnt;
+
+            cout << "Thread " << thread_cnt <<": Establish a connecion" << endl;
+
+            while(1){
+                cnt = recv(conn, msg, 1000, 0);
+                if(cnt <= 0){
+                    cout << "Thread " << thread_cnt << ": Thread exit" << endl;
+                    break;
+                }
+                msg[cnt] = '\0';
+                cout << "Thread " << thread_cnt << ": Receive Msg:" << msg << endl;
+            }
+
+            close(conn);
+            delete(msg);
+            exit(0);
+        }
     }
 
-    close(connet_d);
     close(socket_d);
     cout << "Exit"<< endl;
 
