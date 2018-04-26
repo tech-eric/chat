@@ -32,9 +32,14 @@ int main(int argc, char **argv)
         cout <<"connet faild" << endl;
     }else{
         cout << "Connect succefully" << endl;
-        send(socket_d, buf, strlen(buf), 0);
+       // send(socket_d, buf, strlen(buf), 0);
     }
 
+    while(1){
+        cout << "#Please input your word "<< endl;
+        cin.getline(buf, 30);
+        send(socket_d, buf, strlen(buf), 0);
+    }
     cout << "Exit"<< endl;
 
     return 0;
